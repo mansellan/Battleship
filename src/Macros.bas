@@ -6,16 +6,36 @@ Option Explicit
 '@Ignore MoveFieldCloserToUsage
 Private controller As GameController
 
+#If HOSTED Then
+
 Public Sub PlayWorksheetInterface()
     Dim view As WorksheetView
     Set view = New WorksheetView
-    
+
     Dim randomizer As IRandomizer
     Set randomizer = New GameRandomizer
-    
+
     Set controller = New GameController
     controller.NewGame GridViewAdapter.Create(view), randomizer
 End Sub
+
+#End If
+
+#If STANDALONE Then
+
+Public Sub Main()
+    Dim view As MsFormsView
+    Set view = New MsFormsView
+    
+    Dim randomizer As IRandomizer
+    Set randomizer = New GameRandomizer
+
+    Set controller = New GameController
+    controller.NewGame GridViewAdapter.Create(view), randomizer
+
+End Sub
+
+#End If
 
 '@Ignore StopKeyword
 Public Sub PlayOtherInterface()
@@ -33,6 +53,4 @@ Public Sub PlayOtherInterface()
     End If
     
 End Sub
-
-
 

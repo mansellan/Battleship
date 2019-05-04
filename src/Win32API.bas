@@ -32,11 +32,11 @@ Private Const EM_SETEVENTMASK = (WM_USER + 69)
 #Else
     Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
-    Private Declare Function FindWindowEx Lib "user32" Alias "FindWindowExA" (ByVal hWndParent As Long, ByVal hWndChildAfter As Long, ByVal lpszClass As String,ByVal lpszWindow As String) As Long
-    Private Declare Function InvalidateRect Lib "user32" (ByVal hWnd As Long, ByRef lpRect As Long, ByVal bErase As Long) As Long
-    Private Declare Function UpdateWindow Lib "user32" (ByVal hWnd As Long) As Long
-    Private Declare Function LockWindowUpdate Lib "user32" (ByVal hWnd As Long) As Long
-    Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hWnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+    Private Declare Function FindWindowEx Lib "user32" Alias "FindWindowExA" (ByVal hWndParent As Long, ByVal hWndChildAfter As Long, ByVal lpszClass As String, ByVal lpszWindow As String) As Long
+    Private Declare Function InvalidateRect Lib "user32" (ByVal hwnd As Long, ByRef lpRect As Long, ByVal bErase As Long) As Long
+    Private Declare Function UpdateWindow Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare Function LockWindowUpdate Lib "user32" (ByVal hwnd As Long) As Long
+    Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
 
     Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
     Private Declare Function CallWindowProc Lib "user32" Alias "CallWindowProcA" (ByVal lpPrevWndFunc As Long, ByVal hwnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
@@ -54,7 +54,14 @@ Public Sub ScreenUpdate(ByVal bState As Boolean)
     Exit Sub
 #End If
     
+#If VBA7 Then
     Dim hwnd As LongPtr
+    Dim lResult As LongPtr
+#Else
+    Dim hwnd As Long
+    Dim lResult As Long
+#End If
+    
     hwnd = GethWndWorkbook
     
     'Using SendMessage:
@@ -62,8 +69,7 @@ Public Sub ScreenUpdate(ByVal bState As Boolean)
     '     SendMessage hEdit, %WM_SETREDRAW, 0, 0
     ' - Turn on redraw again and refresh:
     '     SendMessage hEdit, %WM_SETREDRAW, 1, 0
-
-    Dim lResult As LongPtr
+    
     If bState Then
         lResult = SendMessage(hwnd, WM_SETREDRAW, 1&, 0&)
         lResult = InvalidateRect(hwnd, 0&, 1&)
@@ -76,12 +82,27 @@ Public Sub ScreenUpdate(ByVal bState As Boolean)
     
 End Sub
 
+#If VBA7 Then
+
 Private Function GethWndWorkbook() As LongPtr
 
     Dim hWndXLDESK As LongPtr
     hWndXLDESK = FindWindowEx(Application.hwnd, 0, "XLDESK", vbNullString)
-    
+
     GethWndWorkbook = FindWindowEx(hWndXLDESK, 0, vbNullString, ThisWorkbook.Name)
-    
+
 End Function
 
+
+#Else
+
+Private Function GethWndWorkbook() As Long
+
+'    Dim hWndXLDESK As Long
+'    hWndXLDESK = FindWindowEx(Application.hwnd, 0, "XLDESK", vbNullString)
+'
+'    GethWndWorkbook = FindWindowEx(hWndXLDESK, 0, vbNullString, ThisWorkbook.Name)
+
+End Function
+
+#End If
